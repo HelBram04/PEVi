@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creador y Compartidor de Evaluaciones</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        text-align: center;
+    }
+
+    .container {
+        width: 80%;
+        max-width: 800px;
+        margin: 50px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        color: #333;
+        font-size: 28px;
+    }
+
+    h2 {
+        color: #555;
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    select,
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-right: 10px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .pregunta {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        text-align: left;
+    }
+
+    .pregunta h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 20px;
+    }
+
+    .pregunta-label {
+        margin-bottom: 10px;
+        color: #555;
+        font-size: 18px;
+    }
+
+    .respuesta-input {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .preguntas-lista {
+        text-align: left;
+        margin-top: 20px;
+    }
+
+    .preguntas-lista .pregunta {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .preguntas-lista .pregunta button {
+        display: none;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Creador y Compartidor de Evaluaciones</h1>
+
+    <!-- Tab 1: Crear Preguntas -->
+    <div id="tab1">
+        <h2>Crear Pregunta</h2>
+        <form id="formulario-pregunta">
+            <label for="tipo-pregunta">Tipo de pregunta:</label>
+            <select id="tipo-pregunta" class="respuesta-input">
+                <option value="seleccion-multiple">Selección Múltiple</option>
+                <option value="verdadero-falso">Verdadero/Falso</option>
+                <option value="escrita">Pregunta Escrita</option>
+            </select><br><br>
+            <label for="pregunta">Pregunta:</label>
+            <input type="text" id="pregunta" name="pregunta" class="respuesta-input" required><br><br>
+            <div id="opciones-container" style="display: none;">
+                <label>Opciones:</label><br>
+                <div id="opciones"></div><br>
+                <label>Respuesta Correcta:</label>
+                <select id="respuesta-correcta" class="respuesta-input">
+                    <!-- Las opciones correctas se agregarán dinámicamente -->
+                </select><br><br>
+            </div>
+            <button type="button" onclick="agregarPregunta()">Agregar Pregunta</button>
+        </form>
+    </div>
+
+    <!-- Tab 2: Visualizar y Enviar -->
+    <div id="tab2" style="display: none;">
+        <h2>Visualizar y Enviar</h2>
+        <div id="preguntas-resumen">
+            <!-- Aquí se mostrarán las preguntas agregadas -->
+        </div>
+        <button type="button" onclick="mostrarTab('tab1')">Regresar</button>
+        <button type="button" onclick="finalizar()">Finalizar</button>
+    </div>
+
+    <!-- Tab 3: Compartir Evaluaciones -->
+    <div id="tab3" style="display: none;">
+        <h2>Compartir Evaluaciones</h2>
+        <p>A continuación, puedes copiar el siguiente enlace para compartir tus preguntas:</p>
+        <div id="preguntas-finalizadas" class="preguntas-lista" style="display: none;">
+            <!-- Aquí se mostrarán todas las preguntas agregadas -->
+        </div>
+    </div>
+</div>
+
+<script>
+    let numeroPregunta = 1;
+
+    function agregarPregunta() {
+        const tipoPregunta = document.getElementById('tipo-pregunta').value;
+        const preguntaTexto = document.getElementById('pregunta').value.trim();
+
+        if (preguntaTexto === '') {
+            alert('Por favor, ingresa el texto de la pregunta.');
+            return;
+        }
+
+        let preguntaHtml = '';
+
+        switch (tipoPregunta) {
+            case 'seleccion-multiple':
+                preguntaHtml = `
+                    <div class="pregunta" id="pregunta-${numeroPregunta}">
+                        <h3>Pregunta ${numeroPregunta} (Selección Múltiple)</h3>
+                        <label class="pregunta-label">Texto de la pregunta: ${preguntaTexto}</label><br>
+                        <label>Opciones:</label><br>
+                        <input type="text" name="pregunta-${numeroPregunta}-opcion1" class="respuesta-input" placeholder="Opción 1" required><br>
+                        <input type="text" name="pregunta-${numeroPregunta}-opcion2" class="respuesta-input" placeholder="Opción 2" required><br>
+                        <input type="text" name="pregunta-${numeroPregunta}-opcion3" class="respuesta-input" placeholder="Opción 3" required><br>
+                        <label>Respuesta Correcta:</label>
+                        <select class="respuesta-input" id="respuesta-correcta-${numeroPregunta}">
+                            <option value="opcion1">Opción 1</option>
+                            <option value="opcion2">Opción 2</option>
+                            <option value="opcion3">Opción 3</option>
+                        </select><br>
+                    </div>
+                `;
+                break;
+            case 'verdadero-falso':
+                preguntaHtml = `
+                    <div class="pregunta" id="pregunta-${numeroPregunta}">
+                        <h3>Pregunta ${numeroPregunta} (Verdadero/Falso)</h3>
+                        <label class="pregunta-label">Texto de la pregunta: ${preguntaTexto}</label><br>
+                        <input type="radio" name="pregunta-${numeroPregunta}" value="verdadero"> Verdadero<br>
+                        <input type="radio" name="pregunta-${numeroPregunta}" value="falso"> Falso<br>
+                        <label>Respuesta Correcta:</label>
+                        <select class="respuesta-input" id="respuesta-correcta-${numeroPregunta}">
+                            <option value="verdadero">Verdadero</option>
+                            <option value="falso">Falso</option>
+                        </select><br>
+                    </div>
+                `;
+                break;
+            case 'escrita':
+                preguntaHtml = `
+                    <div class="pregunta" id="pregunta-${numeroPregunta}">
+                        <h3>Pregunta ${numeroPregunta} (Escrita)</h3>
+                        <label class="pregunta-label">Texto de la pregunta: ${preguntaTexto}</label><br>
+                        <textarea rows="4" class="respuesta-input" placeholder="Respuesta escrita" required></textarea><br>
+                    </div>
+                `;
+                break;
+            default:
+                break;
+        }
+
+        const preguntasResumen = document.getElementById('preguntas-resumen');
+        const nuevaPregunta = document.createElement('div');
+        nuevaPregunta.innerHTML = preguntaHtml;
+        preguntasResumen.appendChild(nuevaPregunta);
+
+        // Limpiar campos después de agregar pregunta
+        document.getElementById('pregunta').value = '';
+
+        // Mostrar el tab de Visualizar y Enviar después de agregar la pregunta
+        mostrarTab('tab2');
+
+        numeroPregunta++;
+    }
+
+    function finalizar() {
+        mostrarTab('tab3');
+        mostrarPreguntasFinalizadas();
+    }
+
+    function mostrarPreguntasFinalizadas() {
+        const preguntasResumen = document.getElementById('preguntas-resumen').innerHTML;
+        document.getElementById('preguntas-finalizadas').innerHTML = preguntasResumen;
+        document.getElementById('preguntas-finalizadas').style.display = 'block';
+    }
+
+    function mostrarTab(tabId) {
+        const tabs = document.getElementsByClassName('tab');
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = 'none';
+        }
+
+        document.getElementById(tabId).style.display = 'block';
+
+        if (tabId === 'tab2') {
+            mostrarPreguntasFinalizadas();
+        }
+    }
+</script>
+
+</body>
+</html>
+
+
+
+
+
